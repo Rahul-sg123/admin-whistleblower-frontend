@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Admin Dashboard - Whistleblower</title>
@@ -40,14 +39,13 @@
   <div id="complaintList">Loading complaints...</div>
 
   <script>
-    // Optional protection — redirect if not logged in as admin
     if (localStorage.getItem('adminLoggedIn') !== 'true') {
       window.location.href = 'adminLogin.html';
     }
 
     async function fetchComplaints() {
       try {
-        const res = await fetch('https://backend-z7cm.onrender.com/api/complaint/all');
+        const res = await fetch('http://localhost:5000/api/complaint/all');
         const data = await res.json();
 
         const list = document.getElementById('complaintList');
@@ -93,7 +91,7 @@
 
     async function resolveComplaint(complaintId) {
       try {
-        const res = await fetch('https://backend-z7cm.onrender.com/api/admin/resolve', {
+        const res = await fetch('http://localhost:5000/api/admin/resolve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -101,7 +99,6 @@
             rewardAmount: "0.01"
           })
         });
-
 
         const result = await res.json();
         alert("✅ Complaint Marked as Solved");
@@ -115,5 +112,4 @@
     fetchComplaints();
   </script>
 </body>
-
 </html>

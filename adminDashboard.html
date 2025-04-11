@@ -2,43 +2,173 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Dashboard - Whistleblower</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
     }
 
-    .complaint {
-      border: 1px solid #ccc;
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-color: #0e0e0e;
+      color: white;
+    }
+
+    #vanta-bg {
+      width: 100%;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 2rem;
+      height: 84px;
+      backdrop-filter: blur(8px);
+    }
+
+    .logo_img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+
+    .title {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .profile-icon {
+      font-size: 1.5rem;
+    }
+
+    .dashboard {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: none; 
+    transition: 0.3s ease;
+  }
+
+    .card-header {
+      font-weight: bold;
+      margin-bottom: 1.2rem;
+    }
+
+    .info-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .blur-box {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
       padding: 1rem;
-      margin-bottom: 1.5rem;
-      background-color: #f9f9f9;
+      flex: 1;
+    }
+
+    .blur-box strong {
+      display: block;
+      margin-bottom: 0.6rem;
+      font-size: 1rem;
+    }
+
+    .media-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 0.5rem;
     }
 
     .media img,
     .media video {
-      max-width: 200px;
-      margin: 10px 10px 0 0;
-      display: inline-block;
+      width: 240px;
+      height: 180px;
+      border-radius: 10px;
+      object-fit: cover;
     }
 
-    button {
-      padding: 8px 16px;
-      margin-top: 10px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
+    .status {
+      margin-top: 1.2rem;
+      font-weight: bold;
     }
+
+    .solve-btn {
+    margin-top: 1rem;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    background-color: #00cc00;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+    box-shadow: 0 0 6px #00ff0066; /* ✅ Soft low glow only for button */
+  }
+
+  .solve-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 14px #00ff0077;
+  }
   </style>
 </head>
-
 <body>
-  <h1>📋 Admin Dashboard</h1>
-  <div id="complaintList">Loading complaints...</div>
+  <!-- Vanta Background -->
+  <div id="vanta-bg"></div>
 
+  <!-- Header -->
+  <header class="header">
+    <img src="logo.jpg" alt="Logo" class="logo_img" />
+    <h1 class="title">Admin Dashboard</h1>
+    <div class="profile-icon">👤</div>
+  </header>
+
+  <!-- Dashboard -->
+  <main class="dashboard" id="complaintList">
+    Loading complaints...
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
   <script>
+    VANTA.WAVES({
+      el: "#vanta-bg",
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      scale: 1.00,
+      scaleMobile: 1.00,
+      color: 0x101010,
+      shininess: 41.00,
+      waveHeight: 6.5,
+      waveSpeed: 1.0,
+      zoom: 0.9
+    });
+
     if (localStorage.getItem('adminLoggedIn') !== 'true') {
       window.location.href = 'adminLogin.html';
     }
@@ -47,38 +177,40 @@
       try {
         const res = await fetch('http://localhost:5000/api/complaint/all');
         const data = await res.json();
-
         const list = document.getElementById('complaintList');
         list.innerHTML = '';
 
-        if (!Array.isArray(data)) {
+        if (!Array.isArray(data) || data.length === 0) {
           list.innerHTML = '<p>No complaints found.</p>';
           return;
         }
 
         data.forEach(complaint => {
           const div = document.createElement('div');
-          div.className = 'complaint';
+          div.className = 'card';
           div.innerHTML = `
-            <p><strong>ID:</strong> ${complaint.complaintId}</p>
-            <p><strong>Pincode:</strong> ${complaint.pincode}</p>
-            <p><strong>Description:</strong> ${complaint.description}</p>
-            <p><strong>Status:</strong> ${complaint.status === 'Resolved' ? '✅ Solved' : '🕒 Under Process'}</p>
-            <div class="media">
-              ${complaint.media.map(file => {
-            const ext = file.filename.split('.').pop();
-            if (['mp4', 'webm'].includes(ext)) {
-              return `<video controls src="http://localhost:5000${file.path}"></video>`;
-            } else {
-              return `<img src="http://localhost:5000${file.path}" alt="Media" />`;
-            }
-          }).join('')}
+            <div class="card-header"> ID: ${complaint.complaintId} &nbsp;&nbsp;  &nbsp;&nbsp;  Pincode: ${complaint.pincode}</div>
+            <div class="info-row">
+              <div class="blur-box">
+                <strong>Description:</strong>
+                <p>${complaint.description}</p>
+              </div>
+              <div class="blur-box media">
+                <strong> Evidence:</strong>
+                <div class="media-content">
+                  ${complaint.media.map(file => {
+                    const ext = file.filename.split('.').pop();
+                    if (['mp4', 'webm'].includes(ext)) {
+                      return `<video controls src="http://localhost:5000${file.path}"></video>`;
+                    } else {
+                      return `<img src="http://localhost:5000${file.path}" alt="Media" />`;
+                    }
+                  }).join('')}
+                </div>
+              </div>
             </div>
-            ${complaint.status === 'Pending' ? `
-              <button onclick="resolveComplaint('${complaint.complaintId}')">
-                ✅ Mark as Solved
-              </button>
-            ` : ''}
+            <div class="status">${complaint.status === 'Resolved' ? '✅ Solved' : '🕒 Under Process'}</div>
+            ${complaint.status === 'Pending' ? `<button class="solve-btn" onclick="resolveComplaint('${complaint.complaintId}')">✅ Mark as Solved</button>` : ''}
           `;
           list.appendChild(div);
         });

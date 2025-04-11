@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Admin Dashboard - Whistleblower</title>
@@ -8,17 +9,21 @@
       font-family: Arial, sans-serif;
       padding: 2rem;
     }
+
     .complaint {
       border: 1px solid #ccc;
       padding: 1rem;
       margin-bottom: 1.5rem;
       background-color: #f9f9f9;
     }
-    .media img, .media video {
+
+    .media img,
+    .media video {
       max-width: 200px;
       margin: 10px 10px 0 0;
       display: inline-block;
     }
+
     button {
       padding: 8px 16px;
       margin-top: 10px;
@@ -29,6 +34,7 @@
     }
   </style>
 </head>
+
 <body>
   <h1>📋 Admin Dashboard</h1>
   <div id="complaintList">Loading complaints...</div>
@@ -41,7 +47,7 @@
 
     async function fetchComplaints() {
       try {
-        const res = await fetch('http://localhost:5000/api/complaint/all');
+        const res = await fetch('https://backend-z7cm.onrender.com/api/complaint/all');
         const data = await res.json();
 
         const list = document.getElementById('complaintList');
@@ -62,13 +68,13 @@
             <p><strong>Status:</strong> ${complaint.status === 'Resolved' ? '✅ Solved' : '🕒 Under Process'}</p>
             <div class="media">
               ${complaint.media.map(file => {
-                const ext = file.filename.split('.').pop();
-                if (['mp4', 'webm'].includes(ext)) {
-                  return `<video controls src="http://localhost:5000${file.path}"></video>`;
-                } else {
-                  return `<img src="http://localhost:5000${file.path}" alt="Media" />`;
-                }
-              }).join('')}
+            const ext = file.filename.split('.').pop();
+            if (['mp4', 'webm'].includes(ext)) {
+              return `<video controls src="http://localhost:5000${file.path}"></video>`;
+            } else {
+              return `<img src="http://localhost:5000${file.path}" alt="Media" />`;
+            }
+          }).join('')}
             </div>
             ${complaint.status === 'Pending' ? `
               <button onclick="resolveComplaint('${complaint.complaintId}')">
@@ -87,14 +93,15 @@
 
     async function resolveComplaint(complaintId) {
       try {
-        const res = await fetch('http://localhost:5000/api/admin/resolve', {
+        const res = await fetch('https://backend-z7cm.onrender.com/api/admin/resolve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             complaintId,
-            rewardAmount: "0.01" // Fixed reward amount
+            rewardAmount: "0.01"
           })
         });
+
 
         const result = await res.json();
         alert("✅ Complaint Marked as Solved");
@@ -108,4 +115,5 @@
     fetchComplaints();
   </script>
 </body>
+
 </html>
